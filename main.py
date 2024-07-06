@@ -1,8 +1,9 @@
 import sys
 import time
 import threading
-from datetime import datetime
+
 from src.config import PURCHASE_PAGE_URL
+from src.util import time_print
 from src.telegram_util import send_telegram_message, get_latest_telegram_message
 from src.selenium_util import get_page_content
 
@@ -10,14 +11,12 @@ alert_active = False
 last_update_id = None
 terminate_program = False
 add_to_cart_visible = False
-
-def time_print(message):
-    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    print(f"{current_time} - {message}")
+alert_thread = None
 
 def initialize_last_update_id():
     global last_update_id
     data = get_latest_telegram_message(last_update_id)
+    print(data)
     if data["result"]:
         last_update_id = data["result"][-1]["update_id"] + 1
     else:
@@ -56,6 +55,8 @@ def monitor_browser():
 
     while not terminate_program:
         new_add_to_cart_visible = get_page_content()
+        time_print(f"--재고 확인 끝-- : {alert_active}")
+
         if new_add_to_cart_visible != add_to_cart_visible:
             if new_add_to_cart_visible:
                 alert_active = True

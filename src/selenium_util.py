@@ -6,6 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from src.config import CHROME_DRIVER_PATH, PURCHASE_PAGE_URL
+from src.util import time_print
 
 options = Options()
 options.add_argument("--headless")
@@ -32,16 +33,21 @@ def get_page_content():
     add_to_cart_visible = False
 
     try:
-        WebDriverWait(driver, 5).until(
+        page =  WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.XPATH, "//body"))
         )
         try:
+            # EC.presence_of_element_located((By.XPATH, "//p[contains(text(), '@')]/a[contains(text(), 'Keycult')]"))
             add_to_cart_button = WebDriverWait(driver, 5).until(
                 EC.presence_of_element_located((By.XPATH, "//button[contains(text(), 'Add to cart')]"))
             )
             add_to_cart_visible = True
+            time_print("Found 'Add to cart' button")
         except TimeoutException:
+            time_print("TimeoutException: 'Add to cart' button not found")
             add_to_cart_visible = False
+    except Exception as e:
+        time_print(f"Exception: {e}")        
     finally:
         stop_chrome_driver()
 
