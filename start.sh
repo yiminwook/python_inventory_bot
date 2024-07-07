@@ -9,4 +9,4 @@ if [ -d ".venv" ]; then
 fi
 
 # main.py 실행
-python ./main.py
+python3 ./main.py
