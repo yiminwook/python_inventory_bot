@@ -1,6 +1,6 @@
 .temp
 **/.DS_Store
-nohup.
+nohup.out
 output.log
 
 # Byte-compiled / optimized / DLL files

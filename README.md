@@ -31,7 +31,7 @@ chmod 755 ./start.sh
 ## 백그라운드 실행
 
 ```
-nohup python3 main.py > output.log 2>&1 &
+nohup python3 -u main.py > output.log 2>&1 &
 ```
 
 ## 백그라운드 프로세스 종료

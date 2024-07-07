@@ -9,4 +9,4 @@ if [ -d ".venv" ]; then
 fi
 
 # main.py를 nohup으로 백그라운드에서 실행하고 로그를 output.log에 저장
-nohup python3 ./main.py > output.log 2>&1 &
+nohup python3 -u main.py > output.log 2>&1 &
