@@ -5,7 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-from src.config import CHROME_DRIVER_PATH, PURCHASE_PAGE_URL
+from src.config import ABSOLUTE_CHROME_DRIVER_PATH, PURCHASE_PAGE_URL
 from src.util import time_print
 
 options = Options()
@@ -13,7 +13,7 @@ options.add_argument("--headless")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 
-service = Service(CHROME_DRIVER_PATH)
+service = Service(ABSOLUTE_CHROME_DRIVER_PATH)
 driver = None
 
 def start_chrome_driver():
