@@ -3,6 +3,17 @@
 python --version 3.12.4
 
 ```
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+
+sudo dpkg -i google-chrome-stable_current_amd64.deb
+
+# 의존성 에러 발생시
+sudo apt --fix-broken install
+
+google-chrome --version
+```
+
+```
 python3 -m venv .venv
 
 pip install -r requirements
@@ -20,7 +31,7 @@ chmod 755 ./start.sh
 ## 백그라운드 실행
 
 ```
-nohup ./start.sh &
+nohup python3 main.py > output.log 2>&1 &
 ```
 
 ## 백그라운드 프로세스 종료

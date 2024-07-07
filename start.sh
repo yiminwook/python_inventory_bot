@@ -8,5 +8,5 @@ if [ -d ".venv" ]; then
     source .venv/bin/activate
 fi
 
-# main.py 실행
-python3 ./main.py
+# main.py를 nohup으로 백그라운드에서 실행하고 로그를 output.log에 저장
+nohup python3 ./main.py > output.log 2>&1 &
