@@ -39,7 +39,7 @@ def get_page_content():
         try:
             # EC.presence_of_element_located((By.XPATH, "//p[contains(text(), '@')]/a[contains(text(), 'Keycult')]"))
             add_to_cart_button = WebDriverWait(driver, 5).until(
-                EC.presence_of_element_located((By.XPATH, "//button[contains(text(), 'Add to cart')]"))
+                EC.presence_of_element_located((By.XPATH, "//button[contains(text(), 'カートに入れる')]"))
             )
             add_to_cart_visible = True
             time_print("Found 'Add to cart' button")
