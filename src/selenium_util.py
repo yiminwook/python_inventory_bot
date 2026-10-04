@@ -37,14 +37,17 @@ def get_page_content():
             EC.presence_of_element_located((By.XPATH, "//body"))
         )
         try:
-            # EC.presence_of_element_located((By.XPATH, "//p[contains(text(), '@')]/a[contains(text(), 'Keycult')]"))
-            add_to_cart_button = WebDriverWait(driver, 5).until(
-                EC.presence_of_element_located((By.XPATH, "//button[contains(text(), 'カートに入れる')]"))
+            # Match text inside nested spans and require a visible button.
+            WebDriverWait(driver, 5).until(
+                EC.visibility_of_any_elements_located((
+                    By.XPATH,
+                    "//button[contains(normalize-space(.), 'カートに入れる')]",
+                ))
             )
             add_to_cart_visible = True
             time_print("Found 'Add to cart' button")
         except TimeoutException:
-            time_print("TimeoutException: 'Add to cart' button not found")
+            time_print("TimeoutException: 'Add to cart' button not visible")
             add_to_cart_visible = False
     except Exception as e:
         time_print(f"Exception: {e}")        
