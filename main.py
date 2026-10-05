@@ -67,7 +67,7 @@ def start_alert_thread():
 
 def monitor_browser():
     global add_to_cart_visible, alert_active
-    time_print("재고 확인 완료 후 180초 대기합니다.")
+    time_print("재고 확인 완료 후 60초 대기합니다.")
     initialize_last_update_id()
 
     while not terminate_program:
@@ -75,7 +75,7 @@ def monitor_browser():
             check_inventory()
         except Exception as e:
             time_print(f"감시 중 오류. 다음 주기에 다시 시도합니다: {e}")
-        time.sleep(180)
+        time.sleep(60)
 
 def check_inventory():
     global add_to_cart_visible, alert_active
