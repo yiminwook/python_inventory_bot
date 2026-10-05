@@ -1,4 +1,5 @@
 from selenium import webdriver
+import threading
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -15,11 +16,20 @@ options.add_argument("--disable-dev-shm-usage")
 
 service = Service(ABSOLUTE_CHROME_DRIVER_PATH)
 driver = None
+shutdown_requested = threading.Event()
+
+def request_browser_shutdown():
+    shutdown_requested.set()
 
 def start_chrome_driver():
     global driver
+    if shutdown_requested.is_set():
+        raise RuntimeError("프로그램 종료 중입니다.")
     if driver is None:
         driver = webdriver.Chrome(service=service, options=options)
+        if shutdown_requested.is_set():
+            stop_chrome_driver()
+            raise RuntimeError("프로그램 종료 중입니다.")
         driver.set_page_load_timeout(45)
 
 def stop_chrome_driver():
@@ -38,6 +48,8 @@ def get_page_content():
 
     try:
         start_chrome_driver()
+        if shutdown_requested.is_set():
+            return None
         driver.get(PURCHASE_PAGE_URL)
         WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.XPATH, "//body"))

@@ -1,11 +1,14 @@
 import sys
 import time
 import threading
+import signal
 
 from src.config import PURCHASE_PAGE_URL, CHAT_ID
 from src.util import time_print
 from src.telegram_util import send_telegram_message, get_latest_telegram_message
-from src.selenium_util import get_page_content
+from src.selenium_util import get_page_content, request_browser_shutdown
+from src.browser_cleanup import cleanup_browser_processes
+from src.config import ABSOLUTE_CHROME_DRIVER_PATH
 
 alert_active = False
 last_update_id = None
@@ -99,13 +102,30 @@ def check_inventory():
 time_print("모니터링 시작")
 
 if __name__ == "__main__":
-    print("monitoring_thread 시작")
-    monitoring_thread = threading.Thread(target=monitor_browser)
-    monitoring_thread.daemon = True
-    monitoring_thread.start()
+    def request_shutdown(signum, frame):
+        global terminate_program
+        terminate_program = True
 
-    while not terminate_program:
-        time.sleep(1)
+    signal.signal(signal.SIGTERM, request_shutdown)
+    signal.signal(signal.SIGINT, request_shutdown)
+    monitoring_thread = None
+    try:
+        time_print("시작 전 프로젝트 Chrome 프로세스 정리")
+        cleanup_browser_processes(ABSOLUTE_CHROME_DRIVER_PATH)
+        if not terminate_program:
+            print("monitoring_thread 시작")
+            monitoring_thread = threading.Thread(target=monitor_browser, daemon=True)
+            monitoring_thread.start()
+        while not terminate_program:
+            time.sleep(1)
+    finally:
+        terminate_program = True
+        request_browser_shutdown()
+        time_print("종료 전 프로젝트 Chrome 프로세스 정리")
+        cleanup_browser_processes(ABSOLUTE_CHROME_DRIVER_PATH)
+        if monitoring_thread is not None:
+            monitoring_thread.join(timeout=5)
+        cleanup_browser_processes(ABSOLUTE_CHROME_DRIVER_PATH)
 
     time_print("프로그램 종료 중...")
     sys.exit(0)

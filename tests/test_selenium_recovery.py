@@ -66,6 +66,20 @@ class SeleniumRecoveryTests(unittest.TestCase):
         self.module.webdriver.Chrome.side_effect = RuntimeError("start failure")
         self.assertIsNone(self.module.get_page_content())
 
+    def test_shutdown_prevents_new_browser(self):
+        self.module.request_browser_shutdown()
+        self.assertIsNone(self.module.get_page_content())
+        self.module.webdriver.Chrome.assert_not_called()
+
+    def test_shutdown_during_start_closes_browser_before_navigation(self):
+        def start(**kwargs):
+            self.module.request_browser_shutdown()
+            return self.browser
+        self.module.webdriver.Chrome.side_effect = start
+        self.assertIsNone(self.module.get_page_content())
+        self.browser.quit.assert_called_once()
+        self.browser.get.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

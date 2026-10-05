@@ -11,11 +11,13 @@ class AcknowledgementTests(unittest.TestCase):
         config = types.ModuleType("src.config")
         config.CHAT_ID = "123"
         config.PURCHASE_PAGE_URL = "https://example.com"
+        config.ABSOLUTE_CHROME_DRIVER_PATH = "/project/chromedriver"
         telegram = types.ModuleType("src.telegram_util")
         telegram.send_telegram_message = Mock()
         telegram.get_latest_telegram_message = Mock()
         selenium = types.ModuleType("src.selenium_util")
         selenium.get_page_content = Mock()
+        selenium.request_browser_shutdown = Mock()
         util = types.ModuleType("src.util")
         util.time_print = Mock()
         with patch.dict(sys.modules, {
