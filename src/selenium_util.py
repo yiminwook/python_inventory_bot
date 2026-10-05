@@ -20,20 +20,26 @@ def start_chrome_driver():
     global driver
     if driver is None:
         driver = webdriver.Chrome(service=service, options=options)
+        driver.set_page_load_timeout(45)
 
 def stop_chrome_driver():
     global driver
     if driver is not None:
-        driver.quit()
+        current_driver = driver
         driver = None
+        try:
+            current_driver.quit()
+        except Exception as e:
+            time_print(f"브라우저 종료 실패: {e}")
 
 def get_page_content():
-    start_chrome_driver()
-    driver.get(PURCHASE_PAGE_URL)
-    add_to_cart_visible = False
+    """Return True/False for button visibility, or None if the check failed."""
+    add_to_cart_visible = None
 
     try:
-        page =  WebDriverWait(driver, 5).until(
+        start_chrome_driver()
+        driver.get(PURCHASE_PAGE_URL)
+        WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.XPATH, "//body"))
         )
         try:
@@ -47,10 +53,12 @@ def get_page_content():
             add_to_cart_visible = True
             time_print("Found 'Add to cart' button")
         except TimeoutException:
-            time_print("TimeoutException: 'Add to cart' button not visible")
+            time_print("장바구니 버튼이 보이지 않습니다.")
             add_to_cart_visible = False
+    except TimeoutException as e:
+        time_print(f"페이지 로딩 시간 초과. 다음 주기에 다시 확인합니다: {e}")
     except Exception as e:
-        time_print(f"Exception: {e}")        
+        time_print(f"재고 확인 실패. 다음 주기에 다시 확인합니다: {e}")
     finally:
         stop_chrome_driver()
 

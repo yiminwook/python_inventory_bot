@@ -64,25 +64,37 @@ def start_alert_thread():
 
 def monitor_browser():
     global add_to_cart_visible, alert_active
-    time_print("60초에 1회씩 check_for_page_change")
+    time_print("재고 확인 완료 후 60초 대기합니다.")
     initialize_last_update_id()
 
     while not terminate_program:
-        new_add_to_cart_visible = get_page_content()
-        time_print(f"--재고 확인 끝-- : {alert_active}")
+        try:
+            check_inventory()
+        except Exception as e:
+            time_print(f"감시 중 오류. 다음 주기에 다시 시도합니다: {e}")
+        time.sleep(60)
 
-        if new_add_to_cart_visible != add_to_cart_visible:
-            if new_add_to_cart_visible:
-                alert_active = True
-                time_print("get_page_content, 재고뜸!!!")
-                send_telegram_message("재고떴어!! 접속해!!")
-                send_telegram_message(PURCHASE_PAGE_URL)
-            else:
-                alert_active = False
-            add_to_cart_visible = new_add_to_cart_visible
+def check_inventory():
+    global add_to_cart_visible, alert_active
+    new_add_to_cart_visible = get_page_content()
+    if new_add_to_cart_visible is None:
+        time_print("--재고 확인 끝-- : 확인 실패 (이전 상태 유지)")
         if alert_active:
             start_alert_thread()
-        time.sleep(60)
+        return
+    time_print(f"--재고 확인 끝-- : 장바구니 버튼 {'있음' if new_add_to_cart_visible else '없음'}")
+
+    if new_add_to_cart_visible != add_to_cart_visible:
+        if new_add_to_cart_visible:
+            alert_active = True
+            time_print("get_page_content, 재고뜸!!!")
+            send_telegram_message("재고떴어!! 접속해!!")
+            send_telegram_message(PURCHASE_PAGE_URL)
+        else:
+            alert_active = False
+        add_to_cart_visible = new_add_to_cart_visible
+    if alert_active:
+        start_alert_thread()
 
 time_print("모니터링 시작")
 

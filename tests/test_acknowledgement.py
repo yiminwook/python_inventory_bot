@@ -68,6 +68,27 @@ class AcknowledgementTests(unittest.TestCase):
             self.bot.alert_until_acknowledged()
         self.assertTrue(self.bot.terminate_program)
 
+    def test_failed_inventory_check_preserves_active_alert(self):
+        self.bot.add_to_cart_visible = True
+        self.bot.get_page_content.return_value = None
+        with patch.object(self.bot, "start_alert_thread") as start_alert:
+            self.bot.check_inventory()
+        self.assertTrue(self.bot.add_to_cart_visible)
+        self.assertTrue(self.bot.alert_active)
+        self.bot.send_telegram_message.assert_not_called()
+        start_alert.assert_called_once()
+
+    def test_monitor_continues_after_unexpected_failure(self):
+        self.bot.alert_active = False
+        self.bot.get_page_content.side_effect = [RuntimeError("renderer failure"), False]
+        def next_cycle(_):
+            if self.bot.get_page_content.call_count == 2:
+                self.bot.terminate_program = True
+        with patch.object(self.bot, "initialize_last_update_id"), \
+                patch.object(self.bot.time, "sleep", side_effect=next_cycle):
+            self.bot.monitor_browser()
+        self.assertEqual(self.bot.get_page_content.call_count, 2)
+
 
 if __name__ == "__main__":
     unittest.main()
