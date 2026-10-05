@@ -1,1 +1,1 @@
-ps -ef | grep main.py
+pgrep -af 'chrome|chromium|main.py'
